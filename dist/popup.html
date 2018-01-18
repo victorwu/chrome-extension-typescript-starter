@@ -13,13 +13,13 @@
   </head>
   <body>
     <ul style="min-width: 700px;">
-    <li>Current URL: <span id="url"></span></li>
-    <li>Current Time: <span id="time"></span></li>
-    <li>Current Block Number: <span id="blockNum"></span></li>
+    <li>Connection: <span id="connected"></span><span id="network"></span><span id="rpcp"></span></li>
+    <li>Last Updated: <span id="time"></span></li>
+    <li>Current Block Number: <span id="blockNum"></span> <span id="blockInfo"></span></li>
     </ul>
-    <button id="countUp">count up</button>
-    <button id="getBlockNum">update block num</button>
-    <button id="changeBackground">change background</button>
+    <!-- <button id="countUp">count up</button> -->
+    <button id="getStatus">Refresh Network Status</button>
+    <!-- <button id="changeBackground">change background</button> -->
     <script src="js/popup.js"></script>
   </body>
 </html>

@@ -1,31 +1,108 @@
 import * as moment from 'moment';
 import * as $ from 'jquery';
-// const Web3 = require("web3");
 import * as Web3 from 'web3';
 
-let count = 0;
+let count = 0, initialized = 0;
+var isConnected, networkName = 'Unknown', usingRPC, lastUpdated;
+var bnum, timestamp, miner, dfty, gasUsed, numTx;
+// Get RPC from chrome storage
+chrome.storage.sync.get('rpcProvider', function(items: {rpcProvider}) {
+  if(!items.rpcProvider || items.rpcProvider == 'undefined') {
+    usingRPC = 'https://mainnet.infura.io/radar';
+  } else usingRPC = items.rpcProvider;
+  console.log("RPC initialized to: " + items.rpcProvider);
+});
+// Update RPC if chrome storage detects a change from options.html
+chrome.storage.onChanged.addListener(function(changes, sync){
+  console.log("RPC switched to: " + changes.rpcProvider);
+  usingRPC = changes.rpcProvider;
+});
+
 
 $(function() {
-  const queryInfo = {
-    'active': true,
-    'currentWindow': true
+  var web3 = new Web3(new Web3.providers.HttpProvider(usingRPC));
+
+  // Get ETH connectivity Information
+  var seeNetwork = function () {
+    isConnected = web3.isConnected();
+    switch (web3.version.network) {
+      case "1":
+        networkName = "Main";
+        break;
+      case "2":
+       networkName = "Morden";
+       break;
+      case "3":
+        networkName = "Ropsten";
+        break;
+      case "4":
+        networkName = "Rinkeby";
+        break;
+      case "42":
+        networkName = "Kovan";
+        break;
+      default:
+        networkName = "Unknown";
+    }
+    lastUpdated = moment().format('YYYY-MM-DD HH:mm:ss');
+    bnum = web3.eth.blockNumber;
+    //Get Block Information
+    web3.eth.getBlock(bnum, true, function(error, block){
+      if(!error) {
+        bnum = block.number,
+        timestamp = new Date(block.timestamp*1000), // time it was mined
+        miner = block.miner, // of this block
+        dfty = block.difficulty, // difficulty of the block
+        gasUsed = block.gasUsed, // to mine this block
+        numTx = block.transactions.length; // number of transactions in this block
+      }
+    });
+
+    loadData();
   };
 
-  chrome.tabs.query(queryInfo, function(tabs) {
-    $('#url').text(tabs[0].url);
-    $('#time').text(moment().format('YYYY-MM-DD HH:mm:ss'));
-  });
+  var loadData = function () {
+    $('#connected').text(isConnected);
+    $('#network').text(' (' + networkName + ' Network,');
+    $('#rpcp').text(' "' + usingRPC + '")');
+    $('#time').text(lastUpdated);
+    $('#blockNum').text(bnum);
+    $('#blockInfo').text(`
+      mined on ` + timestamp + ` by ` + miner + ` at ` + dfty + ` difficulty, 
+      using ` + gasUsed + ` gas with ` + numTx + ` transactions.
+    `);
+  };
 
-  chrome.browserAction.setBadgeText({text: '' + count});
-  $('#countUp').click(()=>{
-    chrome.browserAction.setBadgeText({text: '' + count++});
-  });
+  if(initialized == 0) { 
+    setTimeout(seeNetwork(), 1000);
+    initialized = 1;
+  }
+  loadData();
+
+
+// chrome.storage.onChanged.addListener(
 
   // Get Block Number
-  $('#getBlockNum').click(()=>{
-    var web3 = new Web3(new Web3.providers.HttpProvider("https://mainnet.infura.io/radar"));
-    $('#blockNum').text(web3.eth.blockNumber);
+  $('#getStatus').click(()=>{
+    seeNetwork();
   });
+
+
+
+
+  // const queryInfo = {
+  //   'active': true,
+  //   'currentWindow': true
+  // };
+  // chrome.tabs.query(queryInfo, function(tabs) {
+    //
+  // });
+
+  // chrome.browserAction.setBadgeText({text: '' + count});
+  // $('#url').text(tabs[0].url);
+  // $('#countUp').click(()=>{
+  //   chrome.browserAction.setBadgeText({text: '' + count++});
+  // });
 
   // $('#changeBackground').click(()=>{
   //   chrome.tabs.query({'active': true, 'currentWindow': true}, function(tabs) {
