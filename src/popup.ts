@@ -63,14 +63,14 @@ $(function() {
     web3.eth.getBlock(bnum, true, function(error, block){
       if(!error) {
         bnum = block.number,
-        timestamp = new Date(block.timestamp*1000), // time it was mined
+        timestamp = new Date(block.timestamp*1000) + '', // time it was mined
         miner = block.miner, // of this block
-        dfty = block.difficulty, // difficulty of the block
+        dfty = block.difficulty + '', // difficulty of the block
         gasUsed = block.gasUsed, // to mine this block
         numTx = block.transactions.length; // number of transactions in this block
       }
     });
-console.log(dfty);
+console.log(lastUpdated);
     // Save data to chrome storage for quick access
     chrome.storage.sync.set({
       'initialized': 1,
@@ -104,10 +104,10 @@ console.log(dfty);
     `);
   };
 
-  if(initialized == 0) { 
-    setTimeout(seeNetwork(), 1000);
-    initialized = 1;
-  }
+  // if(initialized == 0) { 
+  //   setTimeout(seeNetwork(), 1000);
+  //   initialized = 1;
+  // }
   loadData();
 
 
