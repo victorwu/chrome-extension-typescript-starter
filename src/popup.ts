@@ -2,17 +2,26 @@ import * as moment from 'moment';
 import * as $ from 'jquery';
 import * as Web3 from 'web3';
 
-let count = 0;
+
 var initialized = 0, isConnected, networkName = 'Unknown', usingRPC, lastUpdated;
 var bnum, timestamp, miner, dfty, gasUsed, numTx;
-// Get RPC from chrome storage
-chrome.storage.sync.get(['rpcProvider', 'initialized', 'isConnected'], function(items: {rpcProvider}) {
+// Get data from chrome storage
+chrome.storage.sync.get(null, function(items) {
   if(!items.rpcProvider || items.rpcProvider == undefined) {
     usingRPC = 'https://mainnet.infura.io/radar';
   } else usingRPC = items.rpcProvider;
   console.log("RPC initialized to: " + usingRPC);
 
-
+  initialized = items.initialized;
+  isConnected = items.isConnected;
+  networkName = items.networkName;
+  lastUpdated = items.lastUpdated;
+  bnum = items.bnum;
+  timestamp = items.timestamp;
+  miner = items.miner;
+  dfty = items.dfty;
+  gasUsed = items.gasUsed;
+  numTx = items.numTx;
 });
 // Update RPC if chrome storage detects a change from options.html
 chrome.storage.onChanged.addListener(function(changes, sync){
@@ -60,6 +69,23 @@ $(function() {
       }
     });
 
+    // Save data to chrome storage for quick access
+    chrome.storage.sync.set({
+      'initialized': 1,
+      'isConnected': isConnected,
+      'networkName': networkName,
+      'lastUpdated': lastUpdated,
+      'bnum': bnum,
+      'timestamp': timestamp,
+      'miner': miner,
+      'dfty': dfty,
+      'gasUsed': gasUsed,
+      'numTx': numTx
+    });
+
+    // Remove badge from extension
+    chrome.browserAction.setBadgeText({text: ''});
+
     loadData();
   };
 
@@ -76,7 +102,7 @@ $(function() {
   };
 
   if(initialized == 0) { 
-    // setTimeout(seeNetwork(), 1000);
+    setTimeout(seeNetwork(), 1000);
     initialized = 1;
   }
   loadData();
@@ -100,6 +126,7 @@ $(function() {
     //
   // });
 
+  // let count = 0;
   // chrome.browserAction.setBadgeText({text: '' + count});
   // $('#url').text(tabs[0].url);
   // $('#countUp').click(()=>{
