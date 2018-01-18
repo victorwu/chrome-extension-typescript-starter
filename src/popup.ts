@@ -1,12 +1,14 @@
 import * as moment from 'moment';
 import * as $ from 'jquery';
+// const Web3 = require("web3");
+import * as Web3 from 'web3';
 
 let count = 0;
 
 $(function() {
   const queryInfo = {
-    active: true,
-    currentWindow: true
+    'active': true,
+    'currentWindow': true
   };
 
   chrome.tabs.query(queryInfo, function(tabs) {
@@ -19,14 +21,21 @@ $(function() {
     chrome.browserAction.setBadgeText({text: '' + count++});
   });
 
-  $('#changeBackground').click(()=>{
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-      chrome.tabs.sendMessage(tabs[0].id, {
-        color: '#555555'
-      },
-      function(msg) {
-        console.log("result message:", msg);
-      });
-    });
+  // Get Block Number
+  $('#getBlockNum').click(()=>{
+    var web3 = new Web3(new Web3.providers.HttpProvider("https://mainnet.infura.io/radar"));
+    $('#blockNum').text(web3.eth.blockNumber);
   });
+
+  // $('#changeBackground').click(()=>{
+  //   chrome.tabs.query({'active': true, 'currentWindow': true}, function(tabs) {
+  //     chrome.tabs.sendMessage(tabs[0].id, {
+  //       color: '#005555'
+  //     },
+  //     function(msg) {
+  //       console.log("result message:", msg);
+  //     });
+
+  //   });
+  // });
 });
