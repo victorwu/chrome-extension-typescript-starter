@@ -1,31 +1,42 @@
 var Web3 = require('web3');
 var web3 = new Web3();
-var vm = require('vm');
-var fs = require('fs');
-var chrome = require('sinon-chrome');
+// var chrome = require('sinon-chrome');
 
+describe('background.ts', function(){
+  describe('blocksBehind', function(){
 
-it('ETH block times are on average, 20 seconds each, polling should sense a block within a minute', function(){
-  let blocksBehind = 0;
-  function polling() {
-    // Check ETH network every 30 seconds
-    chrome.storage.sync.get(null, function(items) {
-      var usingRPC;
-      if(!items.rpcProvider || items.rpcProvider == undefined) {
-        usingRPC = 'https://mainnet.infura.io/radar';
-      } else usingRPC = items.rpcProvider;
-      var web3 = new Web3(new Web3.providers.HttpProvider(usingRPC));
+    let blocksBehind = 0;
+    var web3 = new Web3(new Web3.providers.HttpProvider('https://mainnet.infura.io/radar'));
+    var blockNumber = web3.eth.blockNumber;
 
-      blocksBehind = web3.eth.blockNumber - items.bnum;
-    });
+    // Check at the beginning of the test
+    console.log("starting blockNumber: " + blockNumber);
 
-    // Set a badge to extension icon to indicate # blocks behind
-    if(blocksBehind > 0) {
-      chrome.browserAction.setBadgeText({text: '' + blocksBehind}); 
-    }
+    // Wait a minute to check if blocks behind
+    setTimeout(function(){
+      blocksBehind = web3.eth.blockNumber - blockNumber;
 
-    console.log('polling, blocksBehind: ' + blocksBehind);
-    setTimeout(function(){return -1;}, 1000 * 60);
-  }
-  polling();
+      // Check ETH network every 30 seconds
+      it('ETH block times are 20 seconds on average, ' + 
+        'polling should detect a block within a minute', function(done) {
+
+        // Set a badge to extension icon to indicate # blocks behind
+        if(blocksBehind > 0) {
+
+          // chrome.browserAction.setBadgeText({text: '' + blocksBehind});
+          done();
+
+        } else {
+
+          setImmediate(done);
+          setImmediate(done); // two done() fails the test
+
+        }
+      });
+
+      console.log('ending blockNumber: ' + web3.eth.blockNumber);
+      console.log('number of blocksBehind: ' + blocksBehind);
+
+    }, 1000 * 60 );
+  });
 });
