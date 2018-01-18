@@ -1,6 +1,6 @@
-# Chrome Extension TypeScript Starter
+# Ethereum Network Status Chrome Extension
 
-Chrome Extension, TypeScript and Visual Studio Code
+Chrome Extension, TypeScript, Vue, Mocha
 
 ## Prerequisites
 
@@ -15,13 +15,15 @@ Chrome Extension, TypeScript and Visual Studio Code
 * TypeScript
 * Webpack
 * Moment.js
+* Mocha tests
+* Vue.js
 * jQuery
-* Example Code
-    * Chrome Storage
-    * Options Version 2
-    * content script
-    * count up badge number
-    * background
+* Extension Features
+    * ETH Last-Block stats in Chrome Storage
+    * Custom RPC Provider
+    <!-- * content script -->
+    * Background Light-Sync (only block number)
+    * Badge Counter for number of blocks behind sync
 
 ## Project Structure
 
@@ -35,16 +37,12 @@ Chrome Extension, TypeScript and Visual Studio Code
 npm install
 ```
 
-## Import as Visual Studio Code project
-
-...
-
 ## Build by watch mode
 
 ### terminal
 
 ```
-npm run build
+npm run build -- --watch
 ```
 
 ### Visual Studio Code
@@ -57,3 +55,10 @@ type `Ctrl + Shift + B`
 
 Load `dist` directory
 
+
+### Run Mocha tests
+
+### terminal
+```
+npm test
+```
