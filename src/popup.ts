@@ -24,10 +24,12 @@ chrome.storage.sync.get(null, function(items) {
   numTx = items.numTx;
 });
 // Update RPC if chrome storage detects a change from options.html
-chrome.storage.onChanged.addListener(function(changes, sync){
-  console.log("RPC switched to: " + changes.rpcProvider);
-  usingRPC = changes.rpcProvider;
-});
+// chrome.storage.onChanged.addListener(function(changes, sync){
+//   if(!changes.rpcProvider || changes.rpcProvider == undefined) {
+//     usingRPC = 'https://mainnet.infura.io/radar';
+//   } else usingRPC = changes.rpcProvider;
+//   console.log("RPC switched to: " + usingRPC);
+// });
 
 
 $(function() {
@@ -72,6 +74,7 @@ $(function() {
     // Save data to chrome storage for quick access
     chrome.storage.sync.set({
       'initialized': 1,
+      'rpcProvider': usingRPC,
       'isConnected': isConnected,
       'networkName': networkName,
       'lastUpdated': lastUpdated,

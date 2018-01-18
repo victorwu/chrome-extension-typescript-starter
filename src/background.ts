@@ -4,8 +4,7 @@ let blocksBehind = 0;
 
 
 function polling() {
-  console.log('polling');
-  setTimeout(polling, 1000 * 30);
+  console.log('polling, blocksBehind: ' + blocksBehind);
 
   // Check ETH network every 30 seconds
   chrome.storage.sync.get(null, function(items) {
@@ -17,10 +16,14 @@ function polling() {
 
     var web3 = new Web3(new Web3.providers.HttpProvider(usingRPC));
     blocksBehind = web3.eth.blockNumber - items.bnum;
-
-    // Set a badge to extension icon to indicate # blocks behind
-    chrome.browserAction.setBadgeText({text: '' + blocksBehind});
   });
+
+  // Set a badge to extension icon to indicate # blocks behind
+  if(blocksBehind > 0) {
+    chrome.browserAction.setBadgeText({text: '' + blocksBehind}); 
+  }
+
+  setTimeout(polling, 1000 * 30);
 }
 
 polling();
