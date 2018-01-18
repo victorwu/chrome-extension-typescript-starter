@@ -2,15 +2,17 @@ import * as moment from 'moment';
 import * as $ from 'jquery';
 import * as Web3 from 'web3';
 
-let count = 0, initialized = 0;
-var isConnected, networkName = 'Unknown', usingRPC, lastUpdated;
+let count = 0;
+var initialized = 0, isConnected, networkName = 'Unknown', usingRPC, lastUpdated;
 var bnum, timestamp, miner, dfty, gasUsed, numTx;
 // Get RPC from chrome storage
-chrome.storage.sync.get('rpcProvider', function(items: {rpcProvider}) {
-  if(!items.rpcProvider || items.rpcProvider == 'undefined') {
+chrome.storage.sync.get(['rpcProvider', 'initialized', 'isConnected'], function(items: {rpcProvider}) {
+  if(!items.rpcProvider || items.rpcProvider == undefined) {
     usingRPC = 'https://mainnet.infura.io/radar';
   } else usingRPC = items.rpcProvider;
-  console.log("RPC initialized to: " + items.rpcProvider);
+  console.log("RPC initialized to: " + usingRPC);
+
+
 });
 // Update RPC if chrome storage detects a change from options.html
 chrome.storage.onChanged.addListener(function(changes, sync){
@@ -74,7 +76,7 @@ $(function() {
   };
 
   if(initialized == 0) { 
-    setTimeout(seeNetwork(), 1000);
+    // setTimeout(seeNetwork(), 1000);
     initialized = 1;
   }
   loadData();

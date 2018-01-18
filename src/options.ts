@@ -5,13 +5,13 @@ import * as $ from 'jquery';
 function save_options() {
   // var color = $('#color').val();
   // var likesColor = $('#like').prop('checked');
-  var rpcP = $('rpcprov').val();
+  var rpcP = $('#rpcprov').val();
   //TODO add valid RPC-link check 
 
   chrome.storage.sync.set({
     // favoriteColor: color,
     // likesColor: likesColor,
-    rpcProvider: rpcP
+    'rpcProvider': rpcP
   }, function() {
     // Update status to let user know options were saved.
     var status = $('#status');
@@ -30,7 +30,7 @@ function restore_options() {
   chrome.storage.sync.get({
     // favoriteColor: 'red',
     // likesColor: true,
-    rpcProvider: 'https://mainnet.infura.io/radar'
+    'rpcProvider': 'https://mainnet.infura.io/radar'
   }, function(items: {favoriteColor, likesColor, rpcProvider}) {
     // $('#color').val(items.favoriteColor);
     // $('#like').prop('checked', items.likesColor);
@@ -39,5 +39,5 @@ function restore_options() {
 }
 
 $('#save').click(save_options);
-// $(restore_options); // document.addEventListener('DOMContentLoaded', restore_options);
+$(restore_options); // document.addEventListener('DOMContentLoaded', restore_options);
 $('#restore').click(restore_options);
