@@ -70,7 +70,7 @@ $(function() {
         numTx = block.transactions.length; // number of transactions in this block
       }
     });
-
+console.log(dfty);
     // Save data to chrome storage for quick access
     chrome.storage.sync.set({
       'initialized': 1,

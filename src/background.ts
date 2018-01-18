@@ -20,7 +20,7 @@ function polling() {
   }
 
   console.log('polling, blocksBehind: ' + blocksBehind);
-  setTimeout(polling, 1000 * 30);
+  setTimeout(polling, 1000 * 60);
 }
 
 polling();
