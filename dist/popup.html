@@ -2,24 +2,29 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Getting Started Extension's Popup</title>
-    <style>
-      body {
-        font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
-        font-size: 100%;
-      }
-    </style>
+    <title>Blockchain Web Extension</title>
+    <link rel="stylesheet" href="css/style.css" type="text/css" />
     <script src="js/vendor.js"></script>
   </head>
   <body>
-    <ul style="min-width: 700px;">
-    <li>Connection: <span id="connected"></span><span id="network"></span><span id="rpcp"></span></li>
-    <li>Last Updated: <span id="time"></span></li>
-    <li>Current Block Number: <span id="blockNum"></span> <span id="blockInfo"></span></li>
-    </ul>
-    <!-- <button id="countUp">count up</button> -->
-    <button id="getStatus">Refresh Network Status</button>
-    <!-- <button id="changeBackground">change background</button> -->
+    <div id="popup" style="min-width: 700px;">
+      <img src="https://radarrelay.com/img/logo.svg" style="max-height:1.5em" />
+      <div id="orderBookInfo">
+        <h3 style="margin-top:0;margin-bottom:0;font-weight: 500;font-stretch: condensed;">
+
+          Live Order Book</h3>
+        <span id="orderBook"></span>
+      </div>
+
+      <!-- <hr /><br /> -->
+      <div id="connectionInfo">
+        <span class="grayText">Connection: </span><span id="connected"></span><span id="network"></span><span id="rpcp"></span>
+        <span class="grayText">Current Block Number: </span><span id="blockNum"></span><span id="blockInfo"></span><br />
+        <span class="grayText">Last Updated: </span><span id="time"></span>.
+      </div>
+      <button id="getStatus">Refresh Network Status</button>
+      <button id="gotoOptions">Settings</button>
+    </div>
     <script src="js/popup.js"></script>
   </body>
 </html>

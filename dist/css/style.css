@@ -1,0 +1,38 @@
+@font-face {
+  font-family: "DINNextW01";
+  src: url("https://app.radarrelay.com/assets/fonts/din-next-regular-latin-1.woff") format("woff");
+  /*src: url("https://app.radarrelay.com/assets/fonts/din-next-condensed-bold-latin-1.woff") format("woff");*/
+}
+
+body {
+  font-family: DINNextW01, sans-serif;
+  font-size: 100%;
+  background-color: #2e2e2e;
+  color:#fff;
+}
+#popup {
+  min-width: 850px;
+}
+#connectionInfo {
+  font-size: 0.7em;
+}
+.greenInfo {
+  color: #3f9;
+}
+.grayText {
+  color:#b5b5b5;
+}
+#orderBookInfo {
+  background-color: #474747;
+}
+#getStatus{
+  background-color: #ffa71a;
+  border-color: #ffa71a;
+}
+#gotoOptions {
+  background-color: #b5b5b5;
+  border-color: #b5b5b5;
+}
+div {
+  padding: 0.4em;
+}
