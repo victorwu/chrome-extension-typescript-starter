@@ -10,6 +10,26 @@ body {
   background-color: #2e2e2e;
   color:#fff;
 }
+#options {
+  width: 460px;
+}
+#tokenSymbol {
+  width: 50px;
+}
+#tokenAddress {
+  color:#000;
+}
+#tokenAddress, 
+#rpcprov, #makerTA, #takerTA {
+  width: 100%;
+}
+#options input {
+  background-color:#454545;
+  color:#fff;
+  border-color:#454545;
+  border-style: solid;
+}
+
 #popup {
   min-width: 850px;
 }

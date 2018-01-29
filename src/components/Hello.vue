@@ -54,8 +54,9 @@ export default Vue.extend({
 //     return Array(this.enthusiasm + 1).join('!');
 //   }
 // }
-</script>
 
+
+</script>
 <style>
 .greeting {
   font-size: 20px;

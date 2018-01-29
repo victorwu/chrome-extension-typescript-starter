@@ -1,4 +1,5 @@
 import * as Web3 from 'web3';
+import * as popup from './popup';
 
 let blocksBehind = 0;
 
@@ -25,3 +26,5 @@ function polling() {
 
 polling();
 
+// TODO: Add functionality to turn on/off seeNetwork variable
+// popup.seeNetwork();

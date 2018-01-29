@@ -5,10 +5,10 @@ import { ZeroEx } from '0x.js'; // TODO: Remove need to compile with this commen
 /// <reference path="node_modules/@types/node/index.d.ts" />
 
 
-var initialized = 0, isConnected, networkName = 'Unknown', lastUpdated, usingRPC, mta, tta, orderBook;
+var initialized = 0, isConnected, networkName = 'Unknown', lastUpdated, usingRPC, mta, tta, orderBook, recentPairs;
 var bnum, timestamp, miner, dfty, gasUsed, numTx;
 
-var getTokenTicker = function (address) {
+export function getTokenTicker(address) {
   var tickers = JSON.parse(Get("https://raw.githubusercontent.com/kvhnuke/etherwallet/mercury/app/scripts/tokens/ethTokens.json"));
   // Find and return ticker symbol corresponding to contract address
   if(address.toUpperCase() == "0x2956356cd2a2bf3202f771f50d3d14a367b48070".toUpperCase()) {
@@ -22,12 +22,125 @@ var getTokenTicker = function (address) {
   return address;
 };
 // HTTP Request
-var Get = function (theUrl){
+export function Get(theUrl){
   var Httpreq = new XMLHttpRequest(); // a new request
   Httpreq.open("GET",theUrl,false);
   Httpreq.send(null);
   return Httpreq.responseText;
 };
+
+
+
+// Load data in Chrome sync storage
+export function loadData() {
+  // Check if connection was made 
+  if(isConnected){ isConnected = "<span class='greenInfo'>On</span>"; } 
+  else { isConnected = "<span style='color:red'>Off</span>"; }
+  $('#connected').html(isConnected);
+  $('#network').html('<span class="grayText"> [</span>' + networkName + ' Network,');
+  $('#rpcp').html('<span class="grayText"> "' + usingRPC + '"; </span>');
+  $('#time').html(lastUpdated);
+  $('#blockNum').html(bnum);
+  $('#blockInfo').html(`<span class='grayText'>; mined on </span>` + timestamp + 
+    ` <span class='grayText'><br />by ` + miner + `at </span>` + dfty + 
+    `<span class='grayText'> difficulty, using </span>` + gasUsed + 
+    `<span class='grayText'> gas with </span>` + numTx + 
+    ` <span class='grayText'> transactions.]</span>`);
+  var parseOB = function (orderBookInput) {
+    // Display this when extension is loaded for first time, after a fresh install
+    if(orderBookInput == '') return 'No data. Click "Refresh Network Status" to continue.';
+
+    var parsedOB = [];
+    if(typeof orderBookInput == 'object') {
+      parsedOB = orderBookInput;
+    } else {
+      // String -> Object
+      parsedOB = JSON.parse(orderBookInput);
+    }
+
+    // Write orderBook object to html table
+    var text = "<table style='min-width: 700px;'><tr><td align='right'>Amount A</td><td>Token A</td><td>for</td><td align='right'>Amount B</td><td>Token B</td><td>View Order</td></tr>";
+    for(var i=0;i<parsedOB.length;i++) {
+      var order = parsedOB[i];
+      // console.log(order);
+      text += "<tr><td align='right'>" + (order.makerTokenAmount/1000000000000000000).toFixed(7) + "</td>" + 
+                  "<td>(" + getTokenTicker(order.makerTokenAddress).substring(0, 7) + ")</td><td> ⇄ </td>" + 
+                  "<td align='right'>" + (order.takerTokenAmount/1000000000000000000).toFixed(7) + "</td>" + 
+                  "<td>(" + getTokenTicker(order.takerTokenAddress) + ")</td>" +
+                  "<td><a href='https://app.radarrelay.com/order/" + order.orderHash + "/' target='_blank'>" + 
+                    "<img src='https://app.radarrelay.com/assets/img/share-icon.svg' /></a></td></tr>";
+    }
+    text += "</table>";
+    return text;
+  };
+  $('#orderBook').html(parseOB(orderBook));
+};
+
+// Get ETH connectivity Information
+export function seeNetwork() {
+  var web3 = new Web3(new Web3.providers.HttpProvider(usingRPC));
+  isConnected = web3.isConnected();
+  switch (web3.version.network) {
+    case "1":
+      networkName = "Main";
+      break;
+    case "2":
+     networkName = "Morden";
+     break;
+    case "3":
+      networkName = "Ropsten";
+      break;
+    case "4":
+      networkName = "Rinkeby";
+      break;
+    case "42":
+      networkName = "Kovan";
+      break;
+    default:
+      networkName = "Unknown";
+  }
+  lastUpdated = moment().format('YYYY-MM-DD HH:mm:ss');
+  bnum = web3.eth.blockNumber;
+  //Get Block Information
+  web3.eth.getBlock(bnum, true, function(error, block) {
+    if(!error) {
+      bnum = block.number,
+      timestamp = moment(new Date(block.timestamp*1000)).format('YYYY-MM-DD HH:mm:ss'), // time it was mined
+      miner = block.miner, // of this block
+      dfty = block.difficulty + '', // difficulty of the block
+      gasUsed = block.gasUsed, // to mine this block
+      numTx = block.transactions.length // number of transactions in this block
+    }
+  }); // console.log("Last updated at " + lastUpdated);
+
+  // Get Order Book Array of last orders
+  orderBook = Get("https://api.radarrelay.com/0x/v0/orders?page=1&per_page=10&makerTokenAddress="+ mta + "&takerTokenAddress=" + tta);
+  // console.log(orderBook);
+
+  // Save data to chrome storage for quick access
+  var orderBookSliced = JSON.parse(orderBook).slice(0,5); // cut array to save space
+  // console.log(orderBook)
+  chrome.storage.sync.set({
+    'initialized': 1,
+    'rpcProvider': usingRPC,
+    'isConnected': isConnected,
+    'networkName': networkName,
+    'lastUpdated': lastUpdated,
+    'bnum': bnum,
+    'timestamp': timestamp,
+    'miner': miner,
+    'dfty': dfty,
+    'gasUsed': gasUsed,
+    'numTx': numTx,
+    'orderBook': orderBookSliced
+  });
+
+  loadData();
+
+  // Remove badge from extension after loading
+  chrome.browserAction.setBadgeText({text: ''});
+};
+
 
 
 // Get data from chrome storage
@@ -63,6 +176,7 @@ if(!initialized) {
     dfty = items.dfty;
     gasUsed = items.gasUsed;
     numTx = items.numTx;
+    recentPairs = items.recentPairs;
   });
 };
 // Update RPC if chrome storage detects a change from options.html
@@ -75,115 +189,6 @@ if(!initialized) {
 
 
 $(function() {
-  var web3 = new Web3(new Web3.providers.HttpProvider(usingRPC));
-
-  // Load data in Chrome sync storage
-  var loadData = function () {
-    var isConnectedTrue = "<span class='greenInfo'>true</span>";
-    if(isConnected){ isConnected = isConnectedTrue; }
-    $('#connected').html(isConnected);
-    $('#network').html('<span class="grayText"> [</span>' + networkName + ' Network,');
-    $('#rpcp').html('<span class="grayText"> "' + usingRPC + '"; </span>');
-    $('#time').html(lastUpdated);
-    $('#blockNum').html(bnum);
-    $('#blockInfo').html(`<span class='grayText'>; mined on </span>` + timestamp + 
-      ` <span class='grayText'><br />by ` + miner + `at </span>` + dfty + 
-      `<span class='grayText'> difficulty, using </span>` + gasUsed + 
-      `<span class='grayText'> gas with </span>` + numTx + 
-      ` <span class='grayText'> transactions.]</span>`);
-    var parseOB = function (orderBookInput) {
-      // First load
-      if(orderBookInput == '') return 'No data. Click "Refresh Network Status" to continue.';
-
-      var parsedOB = [];
-      if(typeof orderBookInput == 'object') {
-        parsedOB = orderBookInput;
-      } else {
-        // String -> Object
-        parsedOB = JSON.parse(orderBookInput);
-      }
-
-      // Write orderBook object to html table
-      var text = "<table style='min-width: 700px;'><tr><td align='right'>Amount A</td><td>Token A</td><td>for</td><td align='right'>Amount B</td><td>Token B</td><td>View Order</td></tr>";
-      for(var i=0;i<parsedOB.length;i++) {
-        var order = parsedOB[i];
-        // console.log(order);
-        text += "<tr><td align='right'>" + (order.makerTokenAmount/1000000000000000000).toFixed(7) + "</td>" + 
-                    "<td>(" + getTokenTicker(order.makerTokenAddress).substring(0, 7) + ")</td><td> ⇄ </td>" + 
-                    "<td align='right'>" + (order.takerTokenAmount/1000000000000000000).toFixed(7) + "</td>" + 
-                    "<td>(" + getTokenTicker(order.takerTokenAddress) + ")</td>" +
-                    "<td><a href='https://app.radarrelay.com/order/" + order.orderHash + "/' target='_blank'>" + 
-                      "<img src='https://app.radarrelay.com/assets/img/share-icon.svg' /></a></td></tr>";
-      }
-      text += "</table>";
-      return text;
-    };
-    $('#orderBook').html(parseOB(orderBook));
-  };
-
-  // Get ETH connectivity Information
-  var seeNetwork = function () {
-    isConnected = web3.isConnected();
-    switch (web3.version.network) {
-      case "1":
-        networkName = "Main";
-        break;
-      case "2":
-       networkName = "Morden";
-       break;
-      case "3":
-        networkName = "Ropsten";
-        break;
-      case "4":
-        networkName = "Rinkeby";
-        break;
-      case "42":
-        networkName = "Kovan";
-        break;
-      default:
-        networkName = "Unknown";
-    }
-    lastUpdated = moment().format('YYYY-MM-DD HH:mm:ss');
-    bnum = web3.eth.blockNumber;
-    //Get Block Information
-    web3.eth.getBlock(bnum, true, function(error, block) {
-      if(!error) {
-        bnum = block.number,
-        timestamp = moment(new Date(block.timestamp*1000)).format('YYYY-MM-DD HH:mm:ss'), // time it was mined
-        miner = block.miner, // of this block
-        dfty = block.difficulty + '', // difficulty of the block
-        gasUsed = block.gasUsed, // to mine this block
-        numTx = block.transactions.length // number of transactions in this block
-      }
-    }); // console.log("Last updated at " + lastUpdated);
-
-    // Get Order Book Array of last orders
-    orderBook = Get("https://api.radarrelay.com/0x/v0/orders?page=1&per_page=10&makerTokenAddress="+ mta + "&takerTokenAddress=" + tta);
-    // console.log(orderBook);
-
-    // Save data to chrome storage for quick access
-    var orderBookSliced = JSON.parse(orderBook).slice(0,5); // cut array to save space
-    // console.log(orderBook)
-    chrome.storage.sync.set({
-      'initialized': 1,
-      'rpcProvider': usingRPC,
-      'isConnected': isConnected,
-      'networkName': networkName,
-      'lastUpdated': lastUpdated,
-      'bnum': bnum,
-      'timestamp': timestamp,
-      'miner': miner,
-      'dfty': dfty,
-      'gasUsed': gasUsed,
-      'numTx': numTx,
-      'orderBook': orderBookSliced
-    });
-
-    loadData();
-
-    // Remove badge from extension after loading
-    chrome.browserAction.setBadgeText({text: ''});
-  };
 
   // if(initialized == 0) { 
   //   setTimeout(seeNetwork(), 1000);
