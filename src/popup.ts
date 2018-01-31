@@ -59,7 +59,9 @@ export function loadData() {
     }
 
     // Write orderBook object to html table
-    var text = "<table style='min-width: 700px;'><tr><td align='right'>Amount A</td><td>Token A</td><td>for</td><td align='right'>Amount B</td><td>Token B</td><td>View Order</td></tr>";
+    var text = `<table style='min-width: 700px;'><tr>
+                  <td align='right'>Amount A</td><td>Token A</td><td>for</td>
+                  <td align='right'>Amount B</td><td>Token B</td><td>View Order</td></tr>`;
     for(var i=0;i<parsedOB.length;i++) {
       var order = parsedOB[i];
       // console.log(order);
