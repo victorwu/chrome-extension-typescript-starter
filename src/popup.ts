@@ -1,7 +1,7 @@
 import * as moment from 'moment';
 import * as $ from 'jquery';
 import * as Web3 from 'web3';
-import { ZeroEx } from '0x.js'; // TODO: Remove need to compile with this commented out first
+// import { ZeroEx } from '0x.js'; // TODO: Remove need to compile with this commented out first
 /// <reference path="node_modules/@types/node/index.d.ts" />
 
 
