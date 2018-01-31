@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "webpack",
-    "test": "mocha"
+    "test": "mocha -r jsdom-global/register"
   },
   "author": "",
   "license": "ISC",
@@ -23,6 +23,8 @@
     "@types/chrome": "~0.0.49",
     "@types/jquery": "~3.2.13",
     "css-loader": "^0.28.8",
+    "jsdom": "^11.6.2",
+    "jsdom-global": "^3.0.2",
     "mocha": "^5.0.0",
     "sinon-chrome": "^2.2.4",
     "ts-loader": "^2.3.7",

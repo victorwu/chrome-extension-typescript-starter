@@ -3,12 +3,12 @@ const path = require('path');
 
 module.exports = {
     entry: {
+        'vendor.js': ['moment', 'jquery', './js/vendor.js']
         index: path.join(__dirname, 'src/index.ts'),
         popup: path.join(__dirname, 'src/popup.ts'),
         options: path.join(__dirname, 'src/options.ts'),
         content_script: path.join(__dirname, 'src/content_script.ts'),
         background: path.join(__dirname, 'src/background.ts'),
-        'vendor.js': ['moment', 'jquery']
     },
     output: {
         path: path.join(__dirname, 'dist/js'),
@@ -71,7 +71,7 @@ module.exports = {
 
         // pack common vender files
         new webpack.optimize.CommonsChunkPlugin({
-            name: 'vendor', 
+            names: ['vendor', 'vendor.js', 'vendor.js.js'], 
             minChunks: Infinity
         }),
 
